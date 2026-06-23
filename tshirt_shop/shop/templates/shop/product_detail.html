@@ -1,0 +1,82 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <img src="{% if product.image %}{{ product.image.url }}{% else %}https://via.placeholder.com/500{% endif %}" 
+                     class="card-img-top" alt="{{ product.name }}">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'shop:home' %}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Каталог</a></li>
+                    <li class="breadcrumb-item active">{{ product.category.name }}</li>
+                </ol>
+            </nav>
+            
+            <h1>{{ product.name }}</h1>
+            <p class="text-muted">Категория: {{ product.category.name }}</p>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary">Размер: {{ product.get_size_display }}</span>
+                <span class="badge bg-info ms-2">Цвет: {{ product.get_color_display }}</span>
+            </div>
+            
+            <h2 class="text-primary mb-4">{{ product.price }} ₽</h2>
+            
+            <p class="lead">{{ product.description }}</p>
+            
+            {% if product.available %}
+            <form action="{% url 'shop:cart_add' product.id %}" method="post">
+                {% csrf_token %}
+                <div class="row align-items-end">
+                    <div class="col-auto">
+                        <label for="quantity" class="form-label">Количество</label>
+                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control" style="width: 80px;">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cart-plus"></i> Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">Товар временно недоступен</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Рекомендуемые товары -->
+    {% if related_products %}
+    <hr class="my-5">
+    <h3 class="mb-4">Похожие товары</h3>
+    <div class="row">
+        {% for product in related_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-img-top" style="height: 150px; overflow: hidden;">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/200" class="img-fluid" alt="{{ product.name }}">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="card-text text-primary">{{ product.price }} ₽</p>
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

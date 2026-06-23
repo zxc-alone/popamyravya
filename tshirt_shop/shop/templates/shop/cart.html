@@ -1,0 +1,88 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Корзина покупок{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Корзина покупок</h1>
+    
+    {% if cart %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Товар</th>
+                            <th>Количество</th>
+                            <th>Цена</th>
+                            <th>Сумма</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart %}
+                        <tr>
+                            <td>
+                                {{ item.product.name }}
+                                <br>
+                                <small class="text-muted">
+                                    Размер: {{ item.product.get_size_display }} | 
+                                    Цвет: {{ item.product.get_color_display }}
+                                </small>
+                            </td>
+                            <td>
+                                <form action="{% url 'shop:cart_add' item.product.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 70px;">
+                                    <button type="submit" class="btn btn-sm btn-link">Обновить</button>
+                                </form>
+                            </td>
+                            <td>{{ item.price }} ₽</td>
+                            <td>{{ item.total_price }} ₽</td>
+                            <td>
+                                <a href="{% url 'shop:cart_remove' item.product.id %}" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Итого</h5>
+                </div>
+                <div class="card-body">
+                    <p class="d-flex justify-content-between">
+                        <span>Товаров в корзине:</span>
+                        <strong>{{ cart|length }}</strong>
+                    </p>
+                    <p class="d-flex justify-content-between">
+                        <span>Общая сумма:</span>
+                        <strong class="text-primary h4">{{ cart.get_total_price }} ₽</strong>
+                    </p>
+                    <hr>
+                    <a href="#" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-credit-card"></i> Оформить заказ
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-primary w-100">
+                        Продолжить покупки
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4>Корзина пуста</h4>
+        <p>Добавьте товары в корзину, чтобы продолжить покупки.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary">Перейти в каталог</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
